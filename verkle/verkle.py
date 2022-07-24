@@ -1,8 +1,8 @@
 from crs.crs import CRS
 from ecc import Banderwagon, Fr
-from typing import Dict
+from typing import Dict, List
 from verkle.nodes import InnerNode, SuffixTree, VerkleValue
-from .common_types import VerkleCommitment
+from .common_types import VerkleCommitment, bytes32
 
 # Verkle trie parameters
 # This is fixed just to make the algorithm simpler. It is possible to have a generic algorithm
@@ -44,7 +44,7 @@ class VerkleTrie():
         self.crs = crs
         self.root_node = InnerNode.empty()
 
-    def insert(self, key, value):
+    def insert(self, key: bytes32, value: bytes32):
         current_node = self.root_node
         index = None
         path = []
@@ -76,8 +76,7 @@ class VerkleTrie():
         # Case 2)
         # If the inner node was empty, then we can add a suffix tree at that index
 
-        # TODO: better name, last_child_node_value_change?
-        last_node_value_change = None
+        last_child_node_value_change = None
         # So this means that we have entered case 1
         # The suffix node at the end of the path, is the current node
         if isinstance(current_node, SuffixTree):
@@ -89,7 +88,7 @@ class VerkleTrie():
                     suffix, value, self.crs)
                 new_root_value = suffix_node.commitment_to_field()
 
-                last_node_value_change = Fr(0).sub(
+                last_child_node_value_change = Fr(0).sub(
                     new_root_value, old_root_value)
 
             # We need to create intermediate inner nodes to add to the path
@@ -142,8 +141,8 @@ class VerkleTrie():
                 # whose previous value was zero because the above for loop must have
                 # looped at least once
                 index, old_root_value, last_node = path.pop()
-                last_node.compute_commitment(self.commit_sparse)
-                last_node_value_change = Fr(0).sub(
+                last_node.compute_commitment(self._commit_sparse)
+                last_child_node_value_change = Fr(0).sub(
                     last_node.commitment_to_field(), old_root_value)
 
         elif isinstance(current_node, InnerNode):
@@ -151,8 +150,8 @@ class VerkleTrie():
             values = {suffix: VerkleValue(value)}
             suffix_tree = SuffixTree(stem, values)
 
-            suffix_tree.compute_commitment(self.commit_sparse)
-            last_node_value_change = suffix_tree.commitment_to_field()
+            suffix_tree.compute_commitment(self._commit_sparse)
+            last_child_node_value_change = suffix_tree.commitment_to_field()
             current_node[index] = suffix_tree
 
         else:
@@ -167,35 +166,28 @@ class VerkleTrie():
             # change in its child at index `index`
             comm_delta = Banderwagon.identity()
             comm_delta.scalar_mul(
-                self.crs[index], last_node_value_change)
+                self.crs[index], last_child_node_value_change)
             node.commitment().add_point(comm_delta)
 
-            # Compute the new "hash" or commitment_to_field value
+            # Compute the new node_hash
             new_root_value = node.commitment_to_field()
-            last_node_value_change.sub(new_root_value, old_root_value)
+            last_child_node_value_change.sub(new_root_value, old_root_value)
 
-    # TODO: This doesn't belong here, we want to eventually only import the CRS
-    def commit_sparse(self, values: Dict[int, Fr]) -> VerkleCommitment:
+    def _commit_sparse(self, values: Dict[int, Fr]) -> VerkleCommitment:
         return VerkleCommitment(self.crs.commit_sparse(values))
 
-    def insert_batch(self, keys, values):
+    def insert_batch(self, keys: List[bytes32], values: List[bytes32]):
         # TODO: Initially just make this call the insert method multiple times
         # It can be optimised by inserting the values first and then computing commitments after
         # For an empty tree its quite simple. For non-empty trees, we need to have a flag for which nodes have changed
         for key, value in zip(keys, values):
             self.insert(key, value)
 
-    def insert_batch_from_empty(keys, values):
-        pass
-
-    def create_proof(keys, values):
+    def create_proof(self, keys: List[bytes32]):
         pass
 
     def verify_proof(proof):
         pass
-
-    def _is_empty(self):
-        return len(self.root_node.children.values()) == 0
 
     # Returns the root of the trie
     # This is the serialised commitment of the root node
