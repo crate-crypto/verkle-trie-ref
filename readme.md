@@ -11,3 +11,6 @@
 - 
 - trie root: commitment(trie.root_node); We define the trie root as the commitment to the root node. We could define it as the node hash, there is no particular safety reason to choose either.
 
+### Run tests
+
+Example: `python -m verkle.verkle_test`
