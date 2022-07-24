@@ -1,7 +1,6 @@
-from crs import commit
 from crs.crs import CRS
 from ecc import Banderwagon, Fr
-from typing import Dict, List
+from typing import Dict
 from verkle.nodes import InnerNode, SuffixTree, VerkleValue
 from .common_types import VerkleCommitment
 
@@ -38,17 +37,6 @@ def path_diff(stem_a, stem_b):
         else:
             return (same_path, (sa, sb))
     return (same_path, None)
-
-
-# There are two different ways to use the verkle trie api
-#  and so there will be two different APIs.
-#
-#  The first method is for when you want to update a large batch of keys
-#  It may be advantageous here, to only update the commitments once all of the new keys have been inserted into the
-# trie. This may only be advantageous if one is starting from an empty trie.
-#
-# The second method is for when you want to update a moderate or small number of keys
-# For this we can use the delta commitment to update the specific spots in which the keys were updated
 
 
 class VerkleTrie():
