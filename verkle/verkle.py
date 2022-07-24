@@ -14,8 +14,6 @@ KEY_LENGTH = 256  # bits
 WIDTH_BITS = 8
 WIDTH = 2**WIDTH_BITS
 
-# A verkle trie struct which stores all of the logic for the trie
-
 
 def get_stem(key):
     return key[:31]
@@ -32,7 +30,6 @@ def get_suffix(key):
 # [1,2,3] and [3,2,1] would have no common ordered elements
 # - The second element is a tuple of the first elements which the two lists
 # do not agree at.
-# TODO: we can put this on a stem class
 def path_diff(stem_a, stem_b):
     same_path = []
     for sa, sb in zip(stem_a, stem_b):
@@ -88,7 +85,6 @@ class VerkleTrie():
         if isinstance(current_node, SuffixTree):
             # Case 1
             if current_node.stem == stem:
-                print("CASE 1")
 
                 # Pop off the suffix tree node from the path because we are going to process it here in place
                 # Hence, there will be no need to process it in the for loop below
