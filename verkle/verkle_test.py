@@ -91,8 +91,6 @@ class TestVerkle(unittest.TestCase):
         c2_field = child.C2.commitment_to_field().to_bytes().hex()
         self.assertEqual(c2_field, Fr(0).to_bytes().hex())
 
-        # TODO: As an extra we could manually compute the root to ensure that it is correct
-
         self.assertEqual(
             "029b6c4c8af9001f0ac76472766c6579f41eec84a73898da06eb97ebdab80a09", trie.root_node.commitment_to_field().to_bytes().hex())
 

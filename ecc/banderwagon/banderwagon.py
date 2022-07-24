@@ -63,7 +63,6 @@ class Banderwagon():
         self.point.add(p.point, q.point)
         return self
 
-    # TODO: prepend underscore to let others know that this method is not a part of the public api
     def from_bytes(serialised_bytes_big_endian: bytes):
         # banderwagon can only be instantiated with serialised bytes
         # TODO: we are still using big endian here, so we reverse
