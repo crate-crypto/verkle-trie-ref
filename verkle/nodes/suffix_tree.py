@@ -216,9 +216,11 @@ class SuffixTree:
 
         self.extension_commitment.add_point(commitment_change)
 
+    # TODO: rename to node_hash
     def commitment_to_field(self):
         return copy.deepcopy(self.extension_commitment.commitment_to_field())
 
+    # TODO: rename to node_commitment
     def commitment(self):
         return copy.deepcopy(self.extension_commitment)
 
