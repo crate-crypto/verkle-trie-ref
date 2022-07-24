@@ -55,8 +55,8 @@ class VerkleTrie():
         #  if the inner node does not have an element at the child which you will go to next
         while True:
             index = stem[len(path)]
-            old_root_value = current_node.commitment_to_field()
-            path.append((index, old_root_value, current_node))
+            old_node_hash = current_node.commitment_to_field()
+            path.append((index, old_node_hash, current_node))
 
             if current_node.contains_index(index) and isinstance(current_node, InnerNode):
                 #  Keep traversing inner nodes
@@ -82,24 +82,24 @@ class VerkleTrie():
         if isinstance(current_node, SuffixTree):
             # Case 1a, there are no other nodes to add to the path
             if current_node.stem == stem:
-                index, old_root_value, suffix_node = path.pop()
-                old_root_value = suffix_node.commitment_to_field()
+                index, old_node_hash, suffix_node = path.pop()
+                old_node_hash = suffix_node.commitment_to_field()
                 suffix_node.replace_child_element(
                     suffix, value, self.crs)
-                new_root_value = suffix_node.commitment_to_field()
+                new_node_hash = suffix_node.commitment_to_field()
 
                 last_child_node_value_change = Fr(0).sub(
-                    new_root_value, old_root_value)
+                    new_node_hash, old_node_hash)
 
             # We need to create intermediate inner nodes to add to the path
             # For the indices that the new stem and the old stem match on
             else:
                 # We want to remove the old suffix tree from the path
-                _, old_root_val, old_suffix_tree = path.pop()
+                _, old_node_hash, old_suffix_tree = path.pop()
                 child_index, _, parent_node = path[-1]
 
                 # This is the inner node that replaces the old suffix tree
-                # Note: Its old root value will be the root value for the suffix tree
+                # Note: Its `old node hash` will be the node hash for the old suffix tree
                 suffix_replacement_node = InnerNode.empty()
                 parent_node[child_index] = suffix_replacement_node
                 parent_node = suffix_replacement_node
@@ -124,10 +124,10 @@ class VerkleTrie():
                     intermediate_node = InnerNode.empty()
                     parent_node[same_index] = intermediate_node
                     path.append(
-                        (same_index, old_root_val, parent_node))
+                        (same_index, old_node_hash, parent_node))
 
                     parent_node = intermediate_node
-                    old_root_val = Fr(0)
+                    old_node_hash = Fr(0)
 
                 old_index, new_index = diff_index
 
@@ -140,10 +140,10 @@ class VerkleTrie():
                 # We know that this inner node, is an intermediate node
                 # whose previous value was zero because the above for loop must have
                 # looped at least once
-                index, old_root_value, last_node = path.pop()
+                index, old_node_hash, last_node = path.pop()
                 last_node.compute_commitment(self._commit_sparse)
                 last_child_node_value_change = Fr(0).sub(
-                    last_node.commitment_to_field(), old_root_value)
+                    last_node.commitment_to_field(), old_node_hash)
 
         elif isinstance(current_node, InnerNode):
             # Here the index is not in the current node, so we can simply add a suffix tree here
@@ -157,10 +157,10 @@ class VerkleTrie():
         else:
             raise Exception("Unknown node type. This is a bug.")
 
-        # Now We should have a list of path elements (child_index, old_parent_root_value, parent_node)
+        # Now We should have a list of path elements (child_index, parent_node_hash_old, parent_node)
         # We iterate from the bottom of the path to the root_node, computing the difference in commitment value
         # for the parent, based on the change in the child's value
-        for index, old_root_value, node in reversed(path):
+        for index, old_node_hash, node in reversed(path):
 
             # Compute the change in this nodes commitment according to the
             # change in its child at index `index`
@@ -170,8 +170,8 @@ class VerkleTrie():
             node.commitment().add_point(comm_delta)
 
             # Compute the new node_hash
-            new_root_value = node.commitment_to_field()
-            last_child_node_value_change.sub(new_root_value, old_root_value)
+            new_node_hash = node.commitment_to_field()
+            last_child_node_value_change.sub(new_node_hash, old_node_hash)
 
     def _commit_sparse(self, values: Dict[int, Fr]) -> VerkleCommitment:
         return VerkleCommitment(self.crs.commit_sparse(values))
