@@ -196,33 +196,23 @@ class SuffixTree:
             self._update_c2(commitment_change, crs)
 
     def _update_c1(self, commitment_change: Banderwagon, crs: CRS):
-        old_c1_field = self.C1.commitment_to_field()
-
-        self.C1.add_point(commitment_change)
-        new_c1_field = self.C1.commitment_to_field()
-
         C1_INDEX = 2
-
-        delta_c1_change = Fr(0).sub(new_c1_field, old_c1_field)
-
-        commitment_change = Banderwagon.identity()
-        commitment_change.scalar_mul(crs[C1_INDEX], delta_c1_change)
-
-        self.extension_commitment.add_point(commitment_change)
+        self._update_c1_or_c2(commitment_change, self.C1, crs[C1_INDEX])
 
     def _update_c2(self, commitment_change: Banderwagon, crs: CRS):
-        # TODO: This code is duplicated, see _update_c1. We could maybe take a method which has input self.C1 or self.C2 and the C1/C2_INDEX. What to name it?
-        old_c2_field = self.C2.commitment_to_field()
-
-        self.C2.add_point(commitment_change)
-        new_c2_field = self.C2.commitment_to_field()
-
         C2_INDEX = 3
+        self._update_c1_or_c2(commitment_change, self.C2, crs[C2_INDEX])
 
-        delta_c2_change = Fr(0).sub(new_c2_field, old_c2_field)
+    def _update_c1_or_c2(self, commitment_change: Banderwagon, C_commitment: VerkleCommitment, C_group_element: Banderwagon):
+
+        old_c_field = C_commitment.commitment_to_field()
+        C_commitment.add_point(commitment_change)
+        new_c_field = C_commitment.commitment_to_field()
+
+        delta_c_change = Fr(0).sub(new_c_field, old_c_field)
 
         commitment_change = Banderwagon.identity()
-        commitment_change.scalar_mul(crs[C2_INDEX], delta_c2_change)
+        commitment_change.scalar_mul(C_group_element, delta_c_change)
 
         self.extension_commitment.add_point(commitment_change)
 
