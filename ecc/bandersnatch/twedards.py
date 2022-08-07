@@ -172,6 +172,30 @@ class BandersnatchAffinePoint():
         else:
             return -y
 
+    # Method overloads
+    def __add__(self, other):
+        result = BandersnatchAffinePoint.identity()
+        result.add(self, other)
+        return result
+
+    def __sub__(self, other):
+        result = BandersnatchAffinePoint.identity()
+        result.sub(self, other)
+        return result
+
+    def __neg__(self):
+        result = BandersnatchAffinePoint.identity()
+        result.neg(self)
+        return result
+
+    def __mul__(self, other):
+        if isinstance(other, Fr) == False:
+            raise TypeError(
+                "[additive notation]: can only multiply a point by a scalar")
+        result = BandersnatchAffinePoint.generator()
+        result.scalar_mul(self, other)
+        return result
+
 # # TODO add the extended formulas for better efficiency
 
 

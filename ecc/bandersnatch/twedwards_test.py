@@ -7,9 +7,8 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
 
     def test_addition(self):
 
-        result_add = BandersnatchAffinePoint.identity()
         gen = BandersnatchAffinePoint.generator()
-        result_add.add(gen, gen)
+        result_add = gen + gen
 
         result_double = BandersnatchAffinePoint.identity()
         result_double.double(gen)
@@ -18,9 +17,8 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
 
     def test_eq(self):
 
-        neg_gen = BandersnatchAffinePoint.identity()
         gen = BandersnatchAffinePoint.generator()
-        neg_gen.neg(gen)
+        neg_gen = - gen
 
         assert gen == gen
         assert gen != neg_gen
@@ -28,14 +26,10 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
     def test_neg(self):
 
         gen = BandersnatchAffinePoint.generator()
-        result = BandersnatchAffinePoint.generator()
-        neg_gen = BandersnatchAffinePoint.generator()
-
-        neg_gen.neg(gen)
-
-        result.add(neg_gen, gen)
-
         expected = BandersnatchAffinePoint.identity()
+
+        neg_gen = -gen
+        result = neg_gen + gen
 
         assert expected == result
 
@@ -58,10 +52,9 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
 
     def test_scalar_mul_smoke(self):
         gen = BandersnatchAffinePoint.generator()
-        result = BandersnatchAffinePoint.identity()
 
         scalar = Fr(2)
-        result.scalar_mul(gen, scalar)
+        result = gen * scalar
 
         twoG = BandersnatchAffinePoint.generator()
         twoG.double(gen)
@@ -71,12 +64,11 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
     def test_scalar_mul_minus_one(self):
 
         gen = BandersnatchAffinePoint.generator()
-        result = BandersnatchAffinePoint.identity()
 
         integer = -1
 
         scalar = Fr(integer)
-        result.scalar_mul(gen, scalar)
+        result = gen * scalar
 
         assert "e951ad5d98e7181e99d76452e0e343281295e38d90c602bf824892fd86742c4a" == result.to_bytes().hex()
 
