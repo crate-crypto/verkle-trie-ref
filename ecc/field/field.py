@@ -89,6 +89,28 @@ class Field():
         self.value = pow(a.value, -1, self.modulus)
         return self
 
+    # TODO: Clean this up to be more readable
+    def multi_inv(values):
+
+        modulus = values[0].modulus
+
+        zero = Field.zero(modulus)
+        one = Field.one(modulus)
+        inv = Field.zero(modulus)
+
+        partials = [one]
+        for i in range(len(values)):
+            partials.append(partials[-1] * values[i] or one)
+
+        inv.inv(partials[-1])
+
+        outputs = [0] * len(values)
+        for i in range(len(values), 0, -1):
+            outputs[i-1] = partials[i-1] * inv if values[i-1] else zero
+            inv = inv * values[i-1] or one
+
+        return outputs
+
     def sqrt(self, a):
         self._check_all_integers_same_modulus(a, a)
         self.value = modular_sqrt(a.value, self.modulus)

@@ -91,6 +91,25 @@ class TestGenericFieldMethods(unittest.TestCase):
 
         self.assertEqual(three, deserialised_three)
 
+    def test_multi_inv(self):
+        values = [Field(1, 13), Field(2, 13), Field(3, 13)]
+
+        got_inverse = Field.multi_inv(values)
+        expected_inverse = _naive_multi_inv(values)
+
+        self.assertEqual(got_inverse, expected_inverse)
+
+
+def _naive_multi_inv(values):
+    modulus = values[0].modulus
+
+    inv_values = []
+    for val in values:
+        inverse = Field.zero(modulus)
+        inverse.inv(val)
+        inv_values.append(inverse)
+    return inv_values
+
 
 if __name__ == '__main__':
     unittest.main()
