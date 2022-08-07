@@ -38,10 +38,28 @@ class TestPolynomial(unittest.TestCase):
 
         a = Polynomial(x_squared, domain)
 
-        result = Polynomial._empty()
         result = a * a
 
         expected_result = Polynomial(x_pow_4, domain)
+
+        self.assertEqual(expected_result, result)
+
+    def test_scale(self):
+        domain = [Fr(0), Fr(1), Fr(2), Fr(3), Fr(4), Fr(5)]
+
+        # Evaluations
+        # x^2
+        x_squared = [Fr(0), Fr(1), Fr(4), Fr(9), Fr(16), Fr(25)]
+        constant = Fr(10)
+
+        a = Polynomial(x_squared, domain)
+
+        result = a * constant
+
+        expected_evaluations = [
+            Fr(0), Fr(10), Fr(40), Fr(90), Fr(160), Fr(250)]
+
+        expected_result = Polynomial(expected_evaluations, domain)
 
         self.assertEqual(expected_result, result)
 

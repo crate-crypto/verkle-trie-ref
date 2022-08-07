@@ -48,10 +48,11 @@ class Polynomial:
 
     def scale(self, poly, constant: Fr):
         result: List[Fr] = []
-        for eval in poly:
+        for eval in poly.evaluations:
             result.append(eval * constant)
 
-        self.evaluations = eval
+        self.evaluations = result
+        self.domain = poly.domain
 
     def equal(self, other):
         assert(isinstance(other, Polynomial))
