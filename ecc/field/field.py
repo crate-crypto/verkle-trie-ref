@@ -75,10 +75,6 @@ class Field():
         self.value = (a.value * b.value) % self.modulus
         return self
 
-    def __eq__(self, obj):
-        assert(isinstance(obj, Field))
-        return self.equal(obj)
-
     def equal(self, b):
         self._check_all_integers_same_modulus(b, b)
         return self.value == b.value
@@ -142,6 +138,10 @@ class Field():
         result = Field(0, self.modulus)
         result.div(self, other)
         return result
+
+    def __eq__(self, obj):
+        assert(isinstance(obj, Field))
+        return self.equal(obj)
 
 
 # Taken from: https://eli.thegreenplace.net/2009/03/07/computing-modular-square-roots-in-python
