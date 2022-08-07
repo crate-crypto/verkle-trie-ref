@@ -1,6 +1,6 @@
 import unittest
-from twedards import BandersnatchAffinePoint
-from field_scalar import Fr
+from .twedards import BandersnatchAffinePoint
+from .field_scalar import Fr
 
 
 class TestBandersnatchTwedwardsMethods(unittest.TestCase):

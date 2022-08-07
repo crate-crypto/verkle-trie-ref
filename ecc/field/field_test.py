@@ -1,5 +1,5 @@
 import unittest
-from field import Field
+from .field import Field
 
 
 class TestGenericFieldMethods(unittest.TestCase):

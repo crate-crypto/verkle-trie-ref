@@ -1,11 +1,10 @@
 import unittest
-from crs.crs import CRS
 from ecc import Banderwagon, Fr
 from verkle.nodes.inner_node import InnerNode
 from .verkle import VerkleTrie
 from .nodes.suffix_tree import VALUE_EXISTS_MARKER,  VerkleValue
 from .common_types import VerkleCommitment
-from crs import get_crs
+from crs import get_crs, CRS
 from .basic_rng import BasicPRNG
 
 

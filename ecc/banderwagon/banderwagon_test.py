@@ -1,5 +1,5 @@
 import unittest
-from banderwagon import Banderwagon
+from .banderwagon import Banderwagon
 
 
 class TestBanderwagon(unittest.TestCase):
