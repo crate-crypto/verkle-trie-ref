@@ -6,6 +6,7 @@ from typing import Dict, List
 class CRS():
     def __init__(self, BASIS_G: List[Banderwagon]):
         self.BASIS_G = BASIS_G
+        self.BASIS_Q = Banderwagon.generator()
 
     def generate_crs(seed):
         # This should follow the procedure listed in the relevant hackmd
@@ -28,7 +29,7 @@ class CRS():
         return commitment
 
     def commit(self, values: List[Fr]):
-        elements = [self.BASIS_G[i] for i in values.keys()]
+        elements = [self.BASIS_G[i] for i, _ in enumerate(values)]
         return commit(elements, values)
 
 
