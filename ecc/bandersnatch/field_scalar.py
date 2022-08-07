@@ -33,8 +33,15 @@ class Fr(Field):
     def to_bytes(self):
         return super().to_bytes(BYTE_LEN)
 
-    def lexographically_largest(x):
+    def lexographically_largest(self):
         return super().lexographically_largest(Q_MIN_ONE_DIV_2)
+
+    def multi_inv(values):
+        result = []
+        inverses = Field.multi_inv(values)
+        for inv in inverses:
+            result.append(Fr(None, inv))
+        return result
 
     def __add__(self, other):
         return Fr(None, super().__add__(other))
