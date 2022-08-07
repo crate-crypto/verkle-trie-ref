@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from ecc import Fr
 from copy import deepcopy
+from polynomial.monomial_basis import MonomialBasis
 
 
 @dataclass
@@ -51,6 +52,39 @@ class LagrangeBasis:
 
         self.evaluations = result
         self.domain = poly.domain
+
+    def interpolate(self):
+
+        xs = self.domain
+        ys = self.evaluations
+
+        # Generate master numerator polynomial, eg. (x - x1) * (x - x2) * ... * (x - xn)
+
+        root = MonomialBasis.vanishing_poly(xs)
+        assert len(root) == len(ys) + 1
+
+        # Generate per-value numerator polynomials, eg. for x=x2,
+        # (x - x1) * (x - x3) * ... * (x - xn), by dividing the master
+        # polynomial back by each x coordinate
+        nums = [root / MonomialBasis([-x, Fr.one()]) for x in xs]
+        # Generate denominators by evaluating numerator polys at each x
+        denoms = [nums[i].evaluate(xs[i]) for i in range(len(xs))]
+        invdenoms = Fr.multi_inv(denoms)
+        # Generate output polynomial, which is the sum of the per-value numerator
+        # polynomials rescaled to have the right y values
+        b = [Fr.zero()] * len(ys)
+        for i in range(len(xs)):
+            yslice = ys[i] * invdenoms[i]
+            for j in range(len(ys)):
+                if nums[i][j] and ys[i]:
+                    b[j] += nums[i][j] * yslice
+
+        # Remove zero terms from the highest degree until
+        # we get to a non-zero term
+        while b[-1].is_zero():
+            b.pop()
+
+        return MonomialBasis(b)
 
     def equal(self, other):
         assert(isinstance(other, LagrangeBasis))

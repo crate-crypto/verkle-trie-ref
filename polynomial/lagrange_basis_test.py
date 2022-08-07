@@ -1,4 +1,6 @@
 import unittest
+
+from polynomial.monomial_basis import MonomialBasis
 from .lagrange_basis import LagrangeBasis as Polynomial
 from ecc import Fr
 
@@ -62,6 +64,20 @@ class TestLagrangeBasis(unittest.TestCase):
         expected_result = Polynomial(expected_evaluations, domain)
 
         self.assertEqual(expected_result, result)
+
+    def test_interpolation(self):
+        domain = [Fr(0), Fr(1), Fr(2), Fr(3), Fr(4), Fr(5)]
+
+        # Evaluations
+        # x^2
+        x_squared = [Fr(0), Fr(1), Fr(4), Fr(9), Fr(16), Fr(25)]
+
+        x_squared_lagrange = Polynomial(x_squared, domain)
+        x_squared_coeff = x_squared_lagrange.interpolate()
+        expected_x_squared_coeff = MonomialBasis(
+            [Fr.zero(), Fr.zero(), Fr.one()])
+
+        self.assertEqual(expected_x_squared_coeff, x_squared_coeff)
 
 
 if __name__ == '__main__':
