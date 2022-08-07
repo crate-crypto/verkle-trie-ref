@@ -20,48 +20,31 @@ class Polynomial:
     def _empty():
         return Polynomial([], [])
 
-    def add(self, lhs, rhs):
+    def __arithmetic_op(self, lhs, rhs, operation):
         if lhs.domain != rhs.domain:
-            raise Exception("can only add polynomials over the same domain")
+            raise Exception(
+                "can only perform arithmetic operations on polynomials over the same domain")
 
         result: List[Fr] = []
         for lhs_i, rhs_i in zip(lhs.evaluations, rhs.evaluations):
-            result.append(lhs_i + rhs_i)
+            result.append(operation(lhs_i, rhs_i))
 
         self.evaluations = result
         self.domain = lhs.domain
 
         return self
+
+    def add(self, lhs, rhs):
+        def add(x, y): return x + y
+        return self.__arithmetic_op(lhs, rhs, add)
 
     def sub(self, lhs, rhs):
-        if lhs.domain != rhs.domain:
-            raise Exception("can only add polynomials over the same domain")
+        def sub(x, y): return x - y
+        return self.__arithmetic_op(lhs, rhs, sub)
 
-        result: List[Fr] = []
-        for lhs_i, rhs_i in zip(lhs.evaluations, rhs.evaluations):
-            result.append(lhs_i - rhs_i)
-
-        self.evaluations = result
-        self.domain = lhs.domain
-
-        return self
-
-    # Notice that add, sub, mul all have duplicated code.
-    # Lets first commit this, so people can see what it was
-    # doing. Then we will pass a function to a generic arithmetic
-    # method to avoid code duplication
     def mul(self, lhs, rhs):
-        if lhs.domain != rhs.domain:
-            raise Exception("can only add polynomials over the same domain")
-
-        result: List[Fr] = []
-        for lhs_i, rhs_i in zip(lhs.evaluations, rhs.evaluations):
-            result.append(lhs_i * rhs_i)
-
-        self.evaluations = result
-        self.domain = lhs.domain
-
-        return self
+        def mul(x, y): return x * y
+        return self.__arithmetic_op(lhs, rhs, mul)
 
     def scale(self, poly, constant: Fr):
         result: List[Fr] = []
