@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from ..bandersnatch.field_base import Fp
 import copy
 from ..bandersnatch.field_scalar import Fr
@@ -6,7 +7,10 @@ from typing import List
 from ..bandersnatch.twedards import BandersnatchAffinePoint, A as A_COEFF
 
 
+@dataclass
 class Banderwagon():
+    point: BandersnatchAffinePoint
+
     def __init__(self, serialised_bytes_big_endian=None, unsafe_bandersnatch_point=None):
         # Since python does not have the concept of a private constructor
         # We need to use this for points which we internally do not need to check
@@ -43,24 +47,23 @@ class Banderwagon():
             if x2.is_zero() and y2.is_zero():
                 return False
 
-            lhs = Fp(0)
-            lhs.mul(x1, y2)
-            rhs = Fp(0)
-            rhs.mul(x2, y1)
+            lhs = x1 * y2
+            rhs = x2 * y1
 
             return lhs == rhs
 
-        return NotImplemented
+        raise TypeError(
+            "It is only safe to check equality between Banderwagon points")
 
     def generator():
         return Banderwagon(None, BandersnatchAffinePoint.generator())
 
     def neg(self, p):
-        self.point.neg(p.point)
+        self.point = -p.point
         return self
 
     def add(self, p, q):
-        self.point.add(p.point, q.point)
+        self.point = p.point + q.point
         return self
 
     def from_bytes(serialised_bytes_big_endian: bytes):
@@ -93,10 +96,9 @@ class Banderwagon():
         x = self.point.x.dup()
         y = self.point.y.dup()
 
-        x.div(x, y)
+        return x / y
 
-        return x
-
+    # TODO: change this to return true/false
     def subgroup_check(x: Fp):
         # Compute 1 - aX^2 and check its legendre symbol
         res = Fp.zero()
@@ -110,7 +112,7 @@ class Banderwagon():
     def to_bytes(self):
         x = self.point.x.dup()
         if self.point.y.lexographically_largest() == False:
-            x.neg(x)
+            x = -x
         bytes_little_endian = x.to_bytes()
 
         bytes_big_endian = bytearray(bytes_little_endian)
@@ -129,22 +131,41 @@ class Banderwagon():
         return copy.deepcopy(self)
 
     def scalar_mul(self, element, scalar: Fr):
-        self.point.scalar_mul(element.point, scalar)
+        self.point = element.point * scalar
         return self
 
     def identity():
         return Banderwagon(None, BandersnatchAffinePoint.identity())
 
     def two_torsion_point():
-        minus_one = Fp.one()
-        minus_one.neg(minus_one)
+        minus_one = -Fp.one()
         return Banderwagon(None, BandersnatchAffinePoint(Fp.zero(), minus_one))
 
     # Multi scalar multiplication
     def msm(points: List[Banderwagon], scalars: List[Fr]):
         res = Banderwagon.identity()
         for scalar, point in zip(scalars, points):
-            partial_res = Banderwagon.identity()
-            partial_res.scalar_mul(point, scalar)
-            res.add(res, partial_res)
+            partial_res = point * scalar
+            res = res + partial_res
         return res
+
+    # Method overloads
+    def __add__(self, other):
+        result = Banderwagon.identity()
+        result.add(self, other)
+        return result
+
+    def __sub__(self, other):
+        result = Banderwagon.identity()
+        result.sub(self, other)
+        return result
+
+    def __neg__(self):
+        result = Banderwagon.identity()
+        result.neg(self)
+        return result
+
+    def __mul__(self, other):
+        result = Banderwagon.identity()
+        result.scalar_mul(self, other)
+        return result
