@@ -42,7 +42,7 @@ class TestGenericFieldMethods(unittest.TestCase):
 
         expected = Field(0, 13)
         expected.inv(b)
-        expected.mul(expected, a)
+        expected = expected * a
 
         self.assertEqual(expected, got)
 
@@ -52,8 +52,7 @@ class TestGenericFieldMethods(unittest.TestCase):
         b_inv = Field(0, 13)
         b_inv.inv(b)
 
-        result = Field(0, 13)
-        result.mul(b_inv, b)
+        result = b_inv * b
 
         expected = Field(1, 13)
 
