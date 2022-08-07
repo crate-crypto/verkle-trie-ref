@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from .field_base import Fp
 import copy
 
@@ -9,12 +10,15 @@ d_num = Fp(138827208126141220649022263972958607803)
 d_den = Fp(171449701953573178309673572579671231137)
 d_den.inv(d_den)
 
-D = Fp(0)
-D.mul(d_num, d_den)
+D = d_num * d_den
 
 
 # Bandersnatch using affine co-ordinates
+@dataclass
 class BandersnatchAffinePoint():
+    x: Fp
+    y: Fp
+
     def __init__(self,  gx, gy):
         if isinstance(gx, Fp) == False:
             raise Exception(
@@ -22,9 +26,6 @@ class BandersnatchAffinePoint():
         if isinstance(gy, Fp) == False:
             raise Exception(
                 "coordinates must have type basefield, please check the y coordinate")
-
-        self.A = A
-        self.D = D
 
         self.x = gx
         self.y = gy
@@ -44,7 +45,7 @@ class BandersnatchAffinePoint():
 
     def neg(self, p):
         self.y = p.y
-        self.x.neg(p.x)
+        self.x = -p.x
 
     def add(self, p, q):
 
@@ -54,36 +55,26 @@ class BandersnatchAffinePoint():
         y2 = q.y
 
         one = Fp(1)
-        x1y2 = Fp(0)
-        y1x2 = Fp(0)
-        y1y2 = Fp(0)
-        ax1x2 = Fp(0)
-        dx1x2y1y2 = Fp(0)
 
-        x1y2.mul(x1, y2)
-        y1x2.mul(y1, x2)
-        ax1x2.mul(x1, x2).mul(ax1x2, A)
-        y1y2.mul(y1, y2)
+        x1y2 = x1 * y2
 
-        dx1x2y1y2.mul(x1y2, y1x2).mul(dx1x2y1y2, D)
+        y1x2 = y1 * x2
+        ax1x2 = x1 * x2 * A
+        y1y2 = y1 * y2
 
-        x_num = Fp(0)
-        x_num.add(x1y2, y1x2)
+        dx1x2y1y2 = x1y2 * y1x2 * D
 
-        x_den = Fp(0)
-        x_den.add(one, dx1x2y1y2)
+        x_num = x1y2 + y1x2
 
-        y_num = Fp(0)
-        y_num.sub(y1y2, ax1x2)
+        x_den = one + dx1x2y1y2
 
-        y_den = Fp(0)
-        y_den.sub(one, dx1x2y1y2)
+        y_num = y1y2 - ax1x2
 
-        x = Fp(0)
-        x.div(x_num, x_den)
+        y_den = one - dx1x2y1y2
 
-        y = Fp(0)
-        y.div(y_num, y_den)
+        x = x_num / x_den
+
+        y = y_num / y_den
 
         self.x = x
         self.y = y
@@ -94,25 +85,16 @@ class BandersnatchAffinePoint():
         return self.add(p, p)  # TODO: add dedicated doubling formula
 
     def is_on_curve(self):
-        x_sq = Fp(0)
-        x_sq.mul(self.x, self.x)
+        x_sq = self.x * self.x
+        y_sq = self.y * self.y
 
-        y_sq = Fp(0)
-        y_sq.mul(self.y, self.y)
-
-        dxy_sq = Fp(0)
-        dxy_sq.mul(x_sq, y_sq).mul(dxy_sq, D)
-
-        a_x_sq = Fp(0)
-        a_x_sq.mul(A, x_sq)
+        dxy_sq = x_sq * y_sq * D
+        a_x_sq = A * x_sq
 
         one = Fp(1)
 
-        rhs = Fp(0)
-        rhs.add(one, dxy_sq)
-
-        lhs = Fp(0)
-        lhs.add(a_x_sq, y_sq)
+        rhs = one + dxy_sq
+        lhs = a_x_sq + y_sq
 
         return lhs == rhs
 
@@ -167,18 +149,14 @@ class BandersnatchAffinePoint():
 
         one = Fp.one()
 
-        num = Fp.zero()
-        num.mul(x, x)
+        num = x * x
 
-        den = Fp.zero()
-        den.mul(num, D)
-        den.sub(den, one)
+        den = (num * D) - one
 
-        num.mul(num, A)
-        num.sub(num, one)
+        num = (num * A) - one
 
-        y = Fp.zero()
-        y.div(num, den)  # y^2
+        y = num / den  # y^2
+
         # This can only be None if the denominator is zero
         if y is None:
             return None
@@ -192,7 +170,7 @@ class BandersnatchAffinePoint():
         if return_positive_y == is_largest:
             return y
         else:
-            return y.neg(y)
+            return -y
 
 # # TODO add the extended formulas for better efficiency
 
