@@ -54,7 +54,7 @@ class BandersnatchAffinePoint():
         x2 = q.x
         y2 = q.y
 
-        one = Fp(1)
+        one = Fp.one()
 
         x1y2 = x1 * y2
 
@@ -91,7 +91,7 @@ class BandersnatchAffinePoint():
         dxy_sq = x_sq * y_sq * D
         a_x_sq = A * x_sq
 
-        one = Fp(1)
+        one = Fp.one()
 
         rhs = one + dxy_sq
         lhs = a_x_sq + y_sq
@@ -141,8 +141,8 @@ class BandersnatchAffinePoint():
         return self
 
     def identity():
-        zero = Fp(0)
-        one = Fp(1)
+        zero = Fp.zero()
+        one = Fp.one()
         return BandersnatchAffinePoint(zero, one)
 
     def get_y_coordinate(x, return_positive_y):
