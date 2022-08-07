@@ -117,6 +117,33 @@ class Field():
         self.mul(a, b_inv)
         return self
 
+    # Method overloads
+    def __add__(self, other):
+        result = Field(0, self.modulus)
+        result.add(self, other)
+        return result
+
+    def __sub__(self, other):
+        result = Field(0, self.modulus)
+        result.sub(self, other)
+        return result
+
+    def __mul__(self, other):
+        result = Field(0, self.modulus)
+        result.mul(self, other)
+        return result
+
+    def __neg__(self):
+        result = Field(0, self.modulus)
+        result.neg(self)
+        return result
+
+    def __truediv__(self, other):
+        result = Field(0, self.modulus)
+        result.div(self, other)
+        return result
+
+
 # Taken from: https://eli.thegreenplace.net/2009/03/07/computing-modular-square-roots-in-python
 # Modified to return None, if the square root does not exist instead of zero
 

@@ -8,8 +8,7 @@ class TestGenericFieldMethods(unittest.TestCase):
         a = Field(10, 13)
         b = Field(30, 13)
 
-        got = Field(0, 13)
-        got.add(a, b)
+        got = a + b
 
         expected = Field(40, 13)
 
@@ -19,8 +18,7 @@ class TestGenericFieldMethods(unittest.TestCase):
         a = Field(10, 13)
         b = Field(30, 13)
 
-        got = Field(0, 13)
-        got.sub(a, b)
+        got = a - b
 
         expected = Field(-20, 13)
 
@@ -30,8 +28,7 @@ class TestGenericFieldMethods(unittest.TestCase):
         a = Field(200, 13)
         b = Field(3, 13)
 
-        got = Field(0, 13)
-        got.mul(a, b)
+        got = a * b
 
         expected = Field(2, 13)
 
@@ -41,8 +38,7 @@ class TestGenericFieldMethods(unittest.TestCase):
         a = Field(200, 13)
         b = Field(3, 13)
 
-        got = Field(0, 13)
-        got.div(a, b)
+        got = a / b
 
         expected = Field(0, 13)
         expected.inv(b)
