@@ -35,3 +35,18 @@ class Fr(Field):
 
     def lexographically_largest(x):
         return super().lexographically_largest(Q_MIN_ONE_DIV_2)
+
+    def __add__(self, other):
+        return Fr(None, super().__add__(other))
+
+    def __sub__(self, other):
+        return Fr(None, super().__sub__(other))
+
+    def __mul__(self, other):
+        return Fr(None, super().__mul__(other))
+
+    def __neg__(self):
+        return Fr(None, super().__neg__())
+
+    def __truediv__(self, other):
+        return Fr(None, super().__truediv__(other))

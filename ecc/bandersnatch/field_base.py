@@ -35,3 +35,18 @@ class Fp(Field):
 
     def lexographically_largest(x):
         return super().lexographically_largest(Q_MIN_ONE_DIV_2)
+
+    def __add__(self, other):
+        return Fp(None, super().__add__(other))
+
+    def __sub__(self, other):
+        return Fp(None, super().__sub__(other))
+
+    def __mul__(self, other):
+        return Fp(None, super().__mul__(other))
+
+    def __neg__(self):
+        return Fp(None, super().__neg__())
+
+    def __truediv__(self, other):
+        return Fp(None, super().__truediv__(other))
