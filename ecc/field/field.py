@@ -104,7 +104,7 @@ class Field():
 
         inv.inv(partials[-1])
 
-        outputs = [0] * len(values)
+        outputs = [zero] * len(values)
         for i in range(len(values), 0, -1):
             outputs[i-1] = partials[i-1] * inv if values[i-1] else zero
             inv = inv * values[i-1] or one
