@@ -32,11 +32,6 @@ class BandersnatchAffinePoint():
         if self.is_on_curve() == False:
             raise Exception("point not on curve")
 
-    def __eq__(self, other):
-        if isinstance(other, BandersnatchAffinePoint):
-            return self.x.value == other.x.value and self.y.value == other.y.value
-        return NotImplemented
-
     def generator():
         # Generator point was taken from the bandersnatch paper: https://ia.cr/2021/1152
         yTe = Fp(0x2a6c669eda123e0f157d8b50badcd586358cad81eee464605e3167b6cc974166)
@@ -195,6 +190,11 @@ class BandersnatchAffinePoint():
         result = BandersnatchAffinePoint.generator()
         result.scalar_mul(self, other)
         return result
+
+    def __eq__(self, other):
+        if isinstance(other, BandersnatchAffinePoint):
+            return self.x == other.x and self.y == other.y
+        raise TypeError("can only check if a Point is equal to a Point")
 
 # # TODO add the extended formulas for better efficiency
 
