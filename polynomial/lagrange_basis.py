@@ -1,27 +1,21 @@
-
-
 from dataclasses import dataclass
 from typing import List
 from ecc import Fr
 from copy import deepcopy
 
 
-# We never need to represent polynomials in their coefficient form
-# unless it is for testing. Therefore, we use the class Polynomial
-# to mean a polynomial represented in evaluation form
 @dataclass
-class Polynomial:
+class LagrangeBasis:
     evaluations: List[Fr]
-    # We can probably ignore this as the domain never changes
     domain: List[Fr]
 
     # An empty polynomial with no evaluations and no domain
     # This is useful because arithmetic methods require a `self`
     # to store their results
     def _empty():
-        return Polynomial([], [])
+        return LagrangeBasis([], [])
 
-    def evaluations(self):
+    def values(self):
         return deepcopy(self.evaluations)
 
     def __arithmetic_op(self, lhs, rhs, operation):
@@ -59,25 +53,25 @@ class Polynomial:
         self.domain = poly.domain
 
     def equal(self, other):
-        assert(isinstance(other, Polynomial))
+        assert(isinstance(other, LagrangeBasis))
         for lhs_i, rhs_i in zip(self.evaluations, other.evaluations):
             if lhs_i != rhs_i:
                 return False
         return True
 
     def __add__(self, other):
-        result = Polynomial._empty()
+        result = LagrangeBasis._empty()
         result.add(self, other)
         return result
 
     def __sub__(self, other):
-        result = Polynomial._empty()
+        result = LagrangeBasis._empty()
         result.sub(self, other)
         return result
 
     def __mul__(self, other):
-        result = Polynomial._empty()
-        if isinstance(other, Polynomial):
+        result = LagrangeBasis._empty()
+        if isinstance(other, LagrangeBasis):
             result.mul(self, other)
         elif isinstance(other, Fr):
             result.scale(self, other)

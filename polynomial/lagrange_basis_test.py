@@ -1,9 +1,9 @@
 import unittest
-from .polynomial import Polynomial
+from .lagrange_basis import LagrangeBasis as Polynomial
 from ecc import Fr
 
 
-class TestPolynomial(unittest.TestCase):
+class TestLagrangeBasis(unittest.TestCase):
 
     def test_add_sub(self):
         domain = [Fr(0), Fr(1), Fr(2), Fr(3), Fr(4), Fr(5)]
