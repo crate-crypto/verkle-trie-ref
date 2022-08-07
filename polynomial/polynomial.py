@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from typing import List
 from ecc import Fr
+from copy import deepcopy
 
 
 # We never need to represent polynomials in their coefficient form
@@ -19,6 +20,9 @@ class Polynomial:
     # to store their results
     def _empty():
         return Polynomial([], [])
+
+    def evaluations(self):
+        return deepcopy(self.evaluations)
 
     def __arithmetic_op(self, lhs, rhs, operation):
         if lhs.domain != rhs.domain:
