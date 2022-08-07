@@ -59,7 +59,7 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
         twoG = BandersnatchAffinePoint.generator()
         twoG.double(gen)
 
-        assert twoG.to_bytes().hex() == result.to_bytes().hex()
+        assert twoG == result
 
     def test_scalar_mul_minus_one(self):
 
