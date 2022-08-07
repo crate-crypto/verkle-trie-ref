@@ -88,8 +88,7 @@ class VerkleTrie():
                     suffix, value, self.crs)
                 new_node_hash = suffix_node.commitment_to_field()
 
-                last_child_node_value_change = Fr(0).sub(
-                    new_node_hash, old_node_hash)
+                last_child_node_value_change = new_node_hash - old_node_hash
 
             # We need to create intermediate inner nodes to add to the path
             # For the indices that the new stem and the old stem match on
@@ -142,8 +141,7 @@ class VerkleTrie():
                 # looped at least once
                 index, old_node_hash, last_node = path.pop()
                 last_node.compute_commitment(self._commit_sparse)
-                last_child_node_value_change = Fr(0).sub(
-                    last_node.commitment_to_field(), old_node_hash)
+                last_child_node_value_change = last_node.commitment_to_field() - old_node_hash
 
         elif isinstance(current_node, InnerNode):
             # Here the index is not in the current node, so we can simply add a suffix tree here
@@ -164,14 +162,12 @@ class VerkleTrie():
 
             # Compute the change in this nodes commitment according to the
             # change in its child at index `index`
-            comm_delta = Banderwagon.identity()
-            comm_delta.scalar_mul(
-                self.crs[index], last_child_node_value_change)
+            comm_delta = self.crs[index] * last_child_node_value_change
             node.commitment().add_point(comm_delta)
 
             # Compute the new node_hash
             new_node_hash = node.commitment_to_field()
-            last_child_node_value_change.sub(new_node_hash, old_node_hash)
+            last_child_node_value_change = new_node_hash - old_node_hash
 
     def _commit_sparse(self, values: Dict[int, Fr]) -> VerkleCommitment:
         return VerkleCommitment(self.crs.commit_sparse(values))

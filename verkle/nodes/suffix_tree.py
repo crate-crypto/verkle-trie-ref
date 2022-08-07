@@ -46,9 +46,7 @@ class VerkleValue:
 
             low, high = split_bytes32(self.value)
 
-            low_fr = Fr.from_bytes(low)
-            low_fr.add(low_fr, VALUE_EXISTS_MARKER)
-
+            low_fr = Fr.from_bytes(low) + VALUE_EXISTS_MARKER
             high_fr = Fr.from_bytes(high)
 
             return (low_fr, high_fr)
@@ -181,8 +179,8 @@ class SuffixTree:
         comm_lower = crs[comm_index_lower]
         comm_higher = crs[comm_index_higher]
 
-        delta_lower_change = Fr(0).sub(new_val_lower, old_val_lower)
-        delta_higher_change = Fr(0).sub(new_val_higher, old_val_higher)
+        delta_lower_change = new_val_lower - old_val_lower
+        delta_higher_change = new_val_higher - old_val_higher
 
         commitment_change = commit([comm_lower, comm_higher], [
                                    delta_lower_change, delta_higher_change])
@@ -209,10 +207,8 @@ class SuffixTree:
         C_commitment.add_point(commitment_change)
         new_c_field = C_commitment.commitment_to_field()
 
-        delta_c_change = Fr(0).sub(new_c_field, old_c_field)
-
-        commitment_change = Banderwagon.identity()
-        commitment_change.scalar_mul(C_group_element, delta_c_change)
+        delta_c_change = new_c_field - old_c_field
+        commitment_change = C_group_element * delta_c_change
 
         self.extension_commitment.add_point(commitment_change)
 
