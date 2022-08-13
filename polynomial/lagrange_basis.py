@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from ecc import Fr
 from copy import deepcopy
-from polynomial.monomial_basis import MonomialBasis
+from .monomial_basis import MonomialBasis
 
 
 @dataclass
@@ -53,13 +53,34 @@ class LagrangeBasis:
         self.evaluations = result
         self.domain = poly.domain
 
+    # TODO: we cannot add the type PrecomputedWeights because it
+    # TODO: will trigger a circular import
+    # TODO: we could take as a parameter: Aprime_DOMAIN_inv
+    def evaluate_outside_domain(self, precomputed_weights, z: Fr):
+
+        r = Fr.zero()
+        A = MonomialBasis.vanishing_poly(self.domain)
+        Az = A.evaluate(z)
+
+        if Az.is_zero() == True:
+            raise Exception(
+                "vanishing polynomial evaluated to zero. z is therefore a point on the domain")
+
+        inverses = Fr.multi_inv([z - x for x in self.domain])
+
+        for i, x in enumerate(inverses):
+            r += self[i] * precomputed_weights.Aprime_DOMAIN_inv[i] * x
+
+        r = r * Az
+
+        return r
+
     def interpolate(self):
 
         xs = self.domain
         ys = self.evaluations
 
         # Generate master numerator polynomial, eg. (x - x1) * (x - x2) * ... * (x - xn)
-
         root = MonomialBasis.vanishing_poly(xs)
         assert len(root) == len(ys) + 1
 
@@ -113,3 +134,7 @@ class LagrangeBasis:
             raise TypeError(
                 "can only multiply polynomial by a constant or another polynomial")
         return result
+
+    def __getitem__(self, index: int):
+        # This is essentially an "evaluate_inside_domain" function
+        return self.evaluations[index]

@@ -1,6 +1,5 @@
 import unittest
-
-from polynomial.monomial_basis import MonomialBasis
+from .monomial_basis import MonomialBasis
 from .lagrange_basis import LagrangeBasis as Polynomial
 from ecc import Fr
 
