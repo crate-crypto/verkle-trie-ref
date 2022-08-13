@@ -70,7 +70,7 @@ class PrecomputedWeights:
         r: List[Fr] = []
         Az = self.A.evaluate(z)
 
-        inverses = self.multi_inv([z - x for x in self.domain])
+        inverses = Fr.multi_inv([z - x for x in self.domain])
 
         for i, x in enumerate(inverses):
             r.append(Az * self.Aprime_DOMAIN_inv[i] * x)
