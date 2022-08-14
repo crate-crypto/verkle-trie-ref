@@ -76,6 +76,11 @@ class BandersnatchAffinePoint():
 
         return self
 
+    def sub(self, p, q):
+        neg_q = -q
+        self.add(p, neg_q)
+        pass
+
     def double(self, p):
         return self.add(p, p)  # TODO: add dedicated doubling formula
 

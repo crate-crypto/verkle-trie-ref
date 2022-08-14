@@ -66,6 +66,10 @@ class Banderwagon():
         self.point = p.point + q.point
         return self
 
+    def sub(self, p, q):
+        self.point = p.point - q.point
+        return self
+
     def from_bytes(serialised_bytes_big_endian: bytes):
         # banderwagon can only be instantiated with serialised bytes
         # TODO: we are still using big endian here, so we reverse
