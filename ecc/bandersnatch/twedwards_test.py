@@ -1,5 +1,5 @@
 import unittest
-from .twedards import BandersnatchAffinePoint
+from .twedards import BandersnatchExtendedPoint
 from .field_scalar import Fr
 
 
@@ -7,17 +7,17 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
 
     def test_addition(self):
 
-        gen = BandersnatchAffinePoint.generator()
+        gen = BandersnatchExtendedPoint.generator()
         result_add = gen + gen
 
-        result_double = BandersnatchAffinePoint.identity()
+        result_double = BandersnatchExtendedPoint.identity()
         result_double.double(gen)
 
         assert result_add == result_double
 
     def test_eq(self):
 
-        gen = BandersnatchAffinePoint.generator()
+        gen = BandersnatchExtendedPoint.generator()
         neg_gen = - gen
 
         assert gen == gen
@@ -25,8 +25,8 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
 
     def test_neg(self):
 
-        gen = BandersnatchAffinePoint.generator()
-        expected = BandersnatchAffinePoint.identity()
+        gen = BandersnatchExtendedPoint.generator()
+        expected = BandersnatchExtendedPoint.identity()
 
         neg_gen = -gen
         result = neg_gen + gen
@@ -34,7 +34,7 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
         assert expected == result
 
     def test_serialise_gen(self):
-        gen = BandersnatchAffinePoint.generator()
+        gen = BandersnatchExtendedPoint.generator()
         serialised_point = gen.to_bytes()
 
         # test vector taken from the rust code
@@ -51,19 +51,19 @@ class TestBandersnatchTwedwardsMethods(unittest.TestCase):
         assert serialised_point.hex() == expected
 
     def test_scalar_mul_smoke(self):
-        gen = BandersnatchAffinePoint.generator()
+        gen = BandersnatchExtendedPoint.generator()
 
         scalar = Fr(2)
         result = gen * scalar
 
-        twoG = BandersnatchAffinePoint.generator()
+        twoG = BandersnatchExtendedPoint.generator()
         twoG.double(gen)
 
         assert twoG == result
 
     def test_scalar_mul_minus_one(self):
 
-        gen = BandersnatchAffinePoint.generator()
+        gen = BandersnatchExtendedPoint.generator()
 
         integer = -1
 
