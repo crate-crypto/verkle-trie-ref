@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from .field_base import Fp
 import copy
@@ -201,15 +203,166 @@ class BandersnatchAffinePoint():
             return self.x == other.x and self.y == other.y
         raise TypeError("can only check if a Point is equal to a Point")
 
-# # TODO add the extended formulas for better efficiency
 
+@dataclass
+class BandersnatchExtendedPoint():
+    x: Fp
+    y: Fp
+    t: Fp
+    z: Fp
 
-# class ExtendedProjPoint():
-#     def __init__(self, curve_params, gx, gy) -> None:
-#         pass
+    def __init__(self, affine_point: BandersnatchAffinePoint) -> None:
+        self.x = affine_point.x
+        self.y = affine_point.y
+        self.t = affine_point.x * affine_point.y
+        self.z = Fp.one()
+        pass
 
-#     def from_affine(self, affine):
-#         pass
+    def identity():
+        affine_point = BandersnatchAffinePoint.identity()
+        return BandersnatchExtendedPoint(affine_point)
 
-#     def identity(self):
-#         return super().identity()
+    def generator():
+        affine_point = BandersnatchAffinePoint.generator()
+        return BandersnatchExtendedPoint(affine_point)
+
+    def neg(self, p):
+        self.x = -p.x
+        self.y = p.y
+        self.t = -p.t
+        self.z = p.z
+
+    def is_zero(self):
+        # Identity is {x=0, y=1, t = 0, z =1}
+        # The equivalence class is therefore is {x=0, y=k, t = 0, z=k} for all k where k!=0
+
+        condition_1 = self.x.is_zero()
+        condition_2 = self.y == self.z
+        condition_3 = not self.y.is_zero()
+        condition_4 = self.t.is_zero()
+
+        return condition_1 and condition_2 and condition_3 and condition_4
+
+    def equal(p: BandersnatchExtendedPoint, q: BandersnatchExtendedPoint):
+        if p.is_zero():
+            return q.is_zero()
+
+        if q.is_zero():
+            return False
+
+        return (p.x * q.z == p.z * q.x) and (p.y * q.z == q.y * p.z)
+
+    def add(self, p, q):
+        # See "Twisted Edwards Curves Revisited" (https: // eprint.iacr.org/2008/522.pdf)
+        # by Huseyin Hisil, Kenneth Koon-Ho Wong, Gary Carter, and Ed Dawson
+        # 3.1 Unified Addition in E^e
+
+        x1 = p.x
+        y1 = p.y
+        t1 = p.t
+        z1 = p.z
+
+        x2 = q.x
+        y2 = q.y
+        t2 = q.t
+        z2 = q.z
+
+        a = x1 * x2
+
+        b = y1 * y2
+
+        c = D * t1 * t2
+
+        d = z1 * z2
+
+        h = b - (a * A)
+
+        e = (x1 + y1) * (x2 + y2) - a - b
+
+        f = d - c
+
+        g = d + c
+
+        self.x = e * f
+        self.y = g * h
+        self.t = e * h
+        self.z = f * g
+
+        return self
+
+    def double(self, p):
+        # TODO: can replace this with dedicated doubling formula
+        return self.add(p, p)
+
+    def scalar_mul(self, point, scalar: Fr):
+        # Same as AffinePoint's equivalent method
+        # using double and add : https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+        scalar_bits = format(scalar.value, 'b')
+
+        result = BandersnatchExtendedPoint.identity()
+        temp = point.dup()
+
+        num_bits = len(scalar_bits)
+
+        for i in reversed(range(num_bits)):
+            if scalar_bits[i] == str(1):
+                result.add(result, temp)
+            temp.double(temp)
+
+        self.x = result.x
+        self.y = result.y
+        self.t = result.t
+        self.z = result.z
+
+        return self
+
+    def to_affine(self):
+        if self.is_zero():
+            return BandersnatchAffinePoint.identity()
+        elif self.z.is_one():
+            return BandersnatchAffinePoint(self.x, self.y)
+        else:
+            assert self.z.is_zero() == False
+            z_inv = Fp.zero()
+            z_inv.inv(self.z)
+
+            x_aff = self.x * z_inv
+            y_aff = self.y * z_inv
+            return BandersnatchAffinePoint(x_aff, y_aff)
+
+    # Only used for testing purposes.
+    def to_bytes(self):
+        return self.to_affine().to_bytes()
+
+    def dup(self):
+        return copy.deepcopy(self)
+
+    # Method overloads
+
+    def __add__(self, other):
+        result = BandersnatchExtendedPoint.identity()
+        result.add(self, other)
+        return result
+
+    def __sub__(self, other):
+        result = BandersnatchExtendedPoint.identity()
+        result.sub(self, other)
+        return result
+
+    def __neg__(self):
+        result = BandersnatchExtendedPoint.identity()
+        result.neg(self)
+        return result
+
+    def __mul__(self, other):
+        if isinstance(other, Fr) == False:
+            raise TypeError(
+                "[additive notation]: can only multiply a point by a scalar")
+        result = BandersnatchExtendedPoint.generator()
+        result.scalar_mul(self, other)
+        return result
+
+    def __eq__(self, other):
+        if isinstance(other, BandersnatchExtendedPoint):
+            return BandersnatchExtendedPoint.equal(self, other)
+        raise TypeError("can only check if a Point is equal to a Point")
