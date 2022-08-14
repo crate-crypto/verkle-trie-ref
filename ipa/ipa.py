@@ -7,6 +7,7 @@ from .common import inner_product
 from crs import CRS
 
 
+# TODO: duplicated
 def varbase_commit(values: List[Fr], elements: List[Banderwagon]):
     from crs import commit
     return commit(elements, values)
