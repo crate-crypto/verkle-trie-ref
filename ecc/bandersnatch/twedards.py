@@ -81,7 +81,7 @@ class BandersnatchAffinePoint():
     def sub(self, p, q):
         neg_q = -q
         self.add(p, neg_q)
-        pass
+        return self
 
     def double(self, p):
         return self.add(p, p)  # TODO: add dedicated doubling formula
@@ -288,6 +288,11 @@ class BandersnatchExtendedPoint():
         self.t = e * h
         self.z = f * g
 
+        return self
+
+    def sub(self, p, q):
+        neg_q = -q
+        self.add(p, neg_q)
         return self
 
     def double(self, p):
