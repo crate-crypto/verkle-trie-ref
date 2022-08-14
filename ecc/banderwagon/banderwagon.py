@@ -4,12 +4,12 @@ from ..bandersnatch.field_base import Fp
 import copy
 from ..bandersnatch.field_scalar import Fr
 from typing import List
-from ..bandersnatch.twedards import BandersnatchAffinePoint, A as A_COEFF
+from ..bandersnatch.twedards import BandersnatchAffinePoint, BandersnatchExtendedPoint, A as A_COEFF
 
 
 @dataclass
 class Banderwagon():
-    point: BandersnatchAffinePoint
+    point: BandersnatchExtendedPoint
 
     def __init__(self, serialised_bytes_big_endian=None, unsafe_bandersnatch_point=None):
         # Since python does not have the concept of a private constructor
@@ -29,7 +29,8 @@ class Banderwagon():
             return None
         x, y = xy
 
-        self.point = BandersnatchAffinePoint(x, y)
+        affine_point = BandersnatchAffinePoint(x, y)
+        self.point = BandersnatchExtendedPoint(affine_point)
 
     def __eq__(self, other):
         if isinstance(other, Banderwagon):
@@ -56,7 +57,7 @@ class Banderwagon():
             "It is only safe to check equality between Banderwagon points")
 
     def generator():
-        return Banderwagon(None, BandersnatchAffinePoint.generator())
+        return Banderwagon(None, BandersnatchExtendedPoint.generator())
 
     def neg(self, p):
         self.point = -p.point
@@ -114,8 +115,9 @@ class Banderwagon():
         return res.legendre()
 
     def to_bytes(self):
-        x = self.point.x.dup()
-        if self.point.y.lexographically_largest() == False:
+        affine = self.point.to_affine()
+        x = affine.x.dup()
+        if affine.y.lexographically_largest() == False:
             x = -x
         bytes_little_endian = x.to_bytes()
 
@@ -129,7 +131,7 @@ class Banderwagon():
         return self
 
     def is_on_curve(self):
-        return self.point.is_on_curve()
+        return self.point.to_affine().is_on_curve()
 
     def dup(self):
         return copy.deepcopy(self)
@@ -139,11 +141,11 @@ class Banderwagon():
         return self
 
     def identity():
-        return Banderwagon(None, BandersnatchAffinePoint.identity())
+        return Banderwagon(None, BandersnatchExtendedPoint.identity())
 
     def two_torsion_point():
-        minus_one = -Fp.one()
-        return Banderwagon(None, BandersnatchAffinePoint(Fp.zero(), minus_one))
+        affine_point = BandersnatchAffinePoint(Fp.zero(), -Fp.one())
+        return Banderwagon(None, BandersnatchExtendedPoint(affine_point))
 
     # Multi scalar multiplication
     def msm(points: List[Banderwagon], scalars: List[Fr]):
