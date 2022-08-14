@@ -89,7 +89,7 @@ tox==3.24.4
 transaction==3.0.1
 trie==2.0.0a5
 typing-extensions==3.10.0.0
-urllib3==1.26.4
+urllib3==1.26.5
 virtualenv==20.8.1
 wcwidth==0.2.5
 yarg==0.1.9
