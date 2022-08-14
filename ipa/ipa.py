@@ -108,10 +108,6 @@ def make_ipa_proof(crs: CRS, transcript: Transcript, query: ProverQuery):
     return y, proof
 
 
-def check_ipa_proof(transcript: Transcript, query: VerifierQuery):
-    pass
-
-
 def check_ipa_proof(crs: CRS, transcript: Transcript, query: VerifierQuery):
     transcript.domain_sep(b"ipa")
     # TODO: We should add `n` into the transcript.
