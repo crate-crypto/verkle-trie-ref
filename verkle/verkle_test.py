@@ -145,51 +145,51 @@ class TestVerkle(unittest.TestCase):
         self.assertEqual("fe2e17833b90719eddcad493c352ccd491730643ecee39060c7c1fff5fcc621a",
                          trie.root_node.commitment_to_field().to_bytes().hex())
 
-        def test_basic_prng(self):
-            """
-            Test prng outputs expected values
-            """
-            # Default seed is 32 zeroes
-            seed = int(0).to_bytes(32, "little")
+    def test_basic_prng(self):
+        """
+        Test prng outputs expected values
+        """
+        # Default seed is 32 zeroes
+        seed = int(0).to_bytes(32, "little")
 
-            prng = BasicPRNG(seed)
-            first_output = prng.rand_bytes()
-            second_output = prng.rand_bytes()
-            third_output = prng.rand_bytes()
+        prng = BasicPRNG(seed)
+        first_output = prng.rand_bytes()
+        second_output = prng.rand_bytes()
+        third_output = prng.rand_bytes()
 
-            # Values taken from Rust implementation
-            first_expected = "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb"
-            second_expected = "b68f593141969cfeddf2011667ccdca92d2d22b414194bdf4ccbaa2833c85be2"
-            third_expected = "74d8b89f49a16dd0a338f1dc90fe470f3137d7df12cf0b76c82b0b5f2fa9028b"
+        # Values taken from Rust implementation
+        first_expected = "2c34ce1df23b838c5abf2a7f6437cca3d3067ed509ff25f11df6b11b582b51eb"
+        second_expected = "b68f593141969cfeddf2011667ccdca92d2d22b414194bdf4ccbaa2833c85be2"
+        third_expected = "74d8b89f49a16dd0a338f1dc90fe470f3137d7df12cf0b76c82b0b5f2fa9028b"
 
-            self.assertEqual(first_expected, first_output.hex())
-            self.assertEqual(second_expected, second_output.hex())
-            self.assertEqual(third_expected, third_output.hex())
+        self.assertEqual(first_expected, first_output.hex())
+        self.assertEqual(second_expected, second_output.hex())
+        self.assertEqual(third_expected, third_output.hex())
 
-    # def test_insert_100(self):
-    #     """
-    #     Test in batch steps of 100, if values are consistent across implementations
-    #     """
+    def test_insert_100(self):
+        """
+        Test in batch steps of 100, if values are consistent across implementations
+        """
 
-    #     # Default seed is 32 zeroes
-    #     seed = int(0).to_bytes(32, "little")
-    #     prng = BasicPRNG(seed)
+        # Default seed is 32 zeroes
+        seed = int(0).to_bytes(32, "little")
+        prng = BasicPRNG(seed)
 
-    #     num_batches = 1
-    #     batch_size = 100
+        num_batches = 1
+        batch_size = 100
 
-    #     got_roots = prng_test_helper(prng, batch_size, num_batches)
+        got_roots = prng_test_helper(prng, batch_size, num_batches)
 
-    #     expected = [
-    #         "afb01df826bd42ddea9001551980f7cfa74f0ca7e0ba36a9079dea4062848600",
-    #         "4cd6573f3602df0a1438c894e2f0f465e16537c4474e3ab35ee74d5b3afe180f",
-    #         "1da1675938ba4ad2545fd163dc2053212cd75b54fc44e70f11fd20b05363650b",
-    #         "bdad99347763dc06765e329da53ae85333a9d89fa9e06ef3fccf30c8c89cb804",
-    #         "cf0b7ea967a755f6c09762aa4a650899bb79d21ef56f1fe6672621149e639905",
-    #     ]
-    #     for i in range(num_batches):
-    #         got_root_hex = got_roots[i]
-    #         self.assertEqual(expected[i], got_root_hex)
+        expected = [
+            "afb01df826bd42ddea9001551980f7cfa74f0ca7e0ba36a9079dea4062848600",
+            "4cd6573f3602df0a1438c894e2f0f465e16537c4474e3ab35ee74d5b3afe180f",
+            "1da1675938ba4ad2545fd163dc2053212cd75b54fc44e70f11fd20b05363650b",
+            "bdad99347763dc06765e329da53ae85333a9d89fa9e06ef3fccf30c8c89cb804",
+            "cf0b7ea967a755f6c09762aa4a650899bb79d21ef56f1fe6672621149e639905",
+        ]
+        for i in range(num_batches):
+            got_root_hex = got_roots[i]
+            self.assertEqual(expected[i], got_root_hex)
 
     def test_splitting_value_smoke(self):
         """
