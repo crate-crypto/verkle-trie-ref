@@ -41,6 +41,9 @@ class InnerNode:
             return True
         return False
 
+    def is_inner_node(self):
+        return True
+
     # TODO: rename to node_hash
     def commitment_to_field(self):
         return self.node_commitment.commitment_to_field()
