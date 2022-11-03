@@ -14,3 +14,19 @@
 ### Run tests
 
 Example: `python -m verkle.verkle_test`
+
+### Cryptography Modules
+
+(In order of what you should implement first)
+
+- ECC : contains all of the Elliptic curve arithmetic needed
+
+- Polynomial : contains all of the polynomial arithmetic needed for polynomials in lagrange basis
+
+- CRS : contains the common reference string which will be used to create proofs
+
+- IPA : Proof algorithm that allows you to create an opening proof for one polynomial in lagrange form
+
+- Multiproof : Proof algorithm that allows you to reduce an opening proof for multiple polynomials into an opening proof for one polynomial. We then call IPA to create a proof of the one _reduced_ polynomial.
+
+
