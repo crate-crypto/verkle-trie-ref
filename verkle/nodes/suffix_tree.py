@@ -214,6 +214,9 @@ class SuffixTree:
 
     def is_inner_node(self):
         return False
+    
+    def is_suffix_tree(self):
+        return True
 
     # TODO: rename to node_hash
     def commitment_to_field(self):
