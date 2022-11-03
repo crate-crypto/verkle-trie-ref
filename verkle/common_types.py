@@ -3,13 +3,14 @@
 from dataclasses import dataclass
 from typing import Optional
 from ecc import Fr, Banderwagon
-from ssz import Byte
+# from ssz import Byte
 import copy
 
 bytes31 = bytes
 bytes32 = bytes
 bytes16 = bytes
-byte = Byte
+# byte = Byte
+byte = int
 
 
 @dataclass
