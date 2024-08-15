@@ -154,7 +154,7 @@ class MultiProof:
             z = query.z.value
             y = query.y
             # TODO: clean this up, its not very readable
-            E_coefficient = power_of_r / t - self.precomp.domain[z]
+            E_coefficient = power_of_r / (t - self.precomp.domain[z])
             C_serialized = bytes(C.to_bytes())
             C_by_serialized[C_serialized] = C
             E_coefficients[C_serialized] = E_coefficient if C_serialized not in E_coefficients \
